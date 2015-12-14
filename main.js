@@ -11,6 +11,8 @@ var app = require('app');  // Module to control application life.
 var BrowserWindow = require('browser-window');  // Module to create native browser window.
 var request = require('request');
 
+var windowStateKeeper = require('electron-window-state');
+
 var launched_from_installer = false;
 
 // Check if we need to kick off the python server-daemon (Desktop app)
@@ -84,10 +86,17 @@ app.on('before-quit', function (e) {
 // initialization and is ready to create browser windows.
 app.on('ready', function() {
 
+  var mainWindowState = windowStateKeeper({
+    defaultWidth: 1200,
+    defaultHeight: 720
+  });
+
   // Create the browser window.
   mainWindow = new BrowserWindow({
-    "width": 1200,
-    "height": 720,
+    "x": mainWindowState.x,
+    "y": mainWindowState.y,
+    "width": mainWindowState.width,
+    "height": mainWindowState.height,
     "min-width": 1024,
     "min-height": 700,
     "center": true,
@@ -96,6 +105,8 @@ app.on('ready', function() {
     "icon": "imgs/openbazaar-icon.png",
     "title-bar-style": "hidden"
   });
+
+  mainWindowState.manage(mainWindow);
 
   // and load the index.html of the app.
   mainWindow.loadUrl('file://' + __dirname + '/index.html');
